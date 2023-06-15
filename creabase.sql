@@ -32,7 +32,7 @@ go
 CREATE TABLE BRAZALETE(
     id_brazalete          int IDENTITY (1,1)    NOT NULL,
     fechaIngreso	date		NOT NULL,
-    fechaIngreso	date		NULL,
+    fechaSalida 	date		NULL,
     EstatusComida         varchar(25)       NOT NULL,
     EstatusMedicamento    varchar(25)       NOT NULL,
     CuidadosEspeciales    varchar(25)       NOT NULL,
@@ -256,7 +256,7 @@ go
 
 CREATE TABLE PRODUCTO(
     idProducto     numeric(10, 0)     NOT NULL,
-    idGuarderia,   numeric(10,0)      NOT NULL,
+    idGuarderia   numeric(10,0)      NOT NULL,
     precio         money              NOT NULL,
     descripcion    varchar(25)        NOT NULL,
     descuento      int    NOT NULL default 0,
