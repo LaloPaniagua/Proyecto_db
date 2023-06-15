@@ -1,4 +1,5 @@
 ﻿
+
 /*
 Paniagua Broca Eduardo Miguel
 Rivero Morales Andrea Estefania
@@ -242,8 +243,9 @@ CREATE TABLE PRODUCTO(
     idProducto     numeric(10, 0)     NOT NULL,
     precio         money              NOT NULL,
     descripcion    varchar(25)        NOT NULL,
-    descuento      numeric(100, 0)    NULL,
-    CONSTRAINT PK8 PRIMARY KEY NONCLUSTERED (idProducto)
+    descuento      int    NOT NULL default 0,
+    CONSTRAINT PK8 PRIMARY KEY NONCLUSTERED (idProducto),
+	CONSTRAINT ckdescuento check (descuento>=0 and descuento<100)
 )
 go
 
@@ -258,6 +260,7 @@ CREATE TABLE RECIBO_VET(
     folioRecibo    numeric(10, 0)    NOT NULL,
     fecha          datetime          NOT NULL,
     id_consulta    numeric(10, 0)    NOT NULL,
+	totalConsulta  money			NOT NULL default 150,
     CONSTRAINT PK11 PRIMARY KEY NONCLUSTERED (folioRecibo)
 )
 go
@@ -520,6 +523,3 @@ ALTER TABLE VETERINARIO ADD CONSTRAINT RefEMPLEADO21
     FOREIGN KEY (idEmpleado)
     REFERENCES EMPLEADO(idEmpleado)
 go
-
-
-
