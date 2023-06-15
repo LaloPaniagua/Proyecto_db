@@ -1,5 +1,4 @@
 ﻿
-
 /*
 Paniagua Broca Eduardo Miguel
 Rivero Morales Andrea Estefania
@@ -32,7 +31,7 @@ go
 CREATE TABLE BRAZALETE(
     id_brazalete          int IDENTITY (1,1)    NOT NULL,
     fechaIngreso	date		NOT NULL,
-    fechaSalida 	date		NULL,
+    fechaSalida	date		NULL,
     EstatusComida         varchar(25)       NOT NULL,
     EstatusMedicamento    varchar(25)       NOT NULL,
     CuidadosEspeciales    varchar(25)       NOT NULL,
@@ -50,10 +49,11 @@ PAgado
 Pendiente
 Cancelada
 */
+
 CREATE TABLE COMPRA(
     idCompra     numeric(10, 0)    NOT NULL,
     fechaCompra	  date	           NOT NULL,
-    status         char(2)           NOT NULL constraint Regional check(status in ('PA','P','C')),
+    status         char(2)           NOT NULL constraint estatusCompra check(status in ('PA','P','C')),
     tipo         char(1)           NOT NULL constraint tipo_compra check (tipo='L' or tipo='F'),
     total        money             NOT NULL default 0,
     idCliente    numeric(10, 0)    NOT NULL,
@@ -219,14 +219,14 @@ go
 /* 
  * TABLE: MEDICION 
  */
-
+ 
 CREATE TABLE MEDICION(
     id_medicion      numeric(10, 0)    NOT NULL,
     ritmoCardiaco    numeric(3, 0)     NOT NULL,
     fechaHora        datetime          NOT NULL,
     nivelOxigeno     numeric(2, 0)     NOT NULL,
     temperatura      numeric(2, 0)     NOT NULL,
-    id_brazalete     numeric(10, 0)    NOT NULL,
+    id_brazalete     int    NOT NULL,
     CONSTRAINT PK1 PRIMARY KEY NONCLUSTERED (id_medicion)
 )
 go
