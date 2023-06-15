@@ -331,7 +331,7 @@ go
 
 CREATE TABLE VENDEDOR(
     idEmpleado    numeric(10, 0)    NOT NULL,
-    pago          money             NOT NULL default 2500,
+    pago          money             NOT NULL default 5000,
     CONSTRAINT PK16 PRIMARY KEY NONCLUSTERED (idEmpleado)
 )
 go
