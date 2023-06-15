@@ -180,15 +180,39 @@ begin
 	if (select tipo from COMPRA where idCompra=@idCompra)='F'
 	begin
 		declare @idEmpleado numeric(10)
-		select @idEmpleado=idEmpleado from FISICA where idCompra=@idCompra
-		update VENDEDOR
-		set pago=pago - ((select total from COMPRA where idCompra=@idCompra ) * 0.15)
-		where idEmpleado=(select idEmpleado from FISICA where idCompra=@idCompra)
+		if exists(select * from FISICA where idCompra=@idCompra)
+		begin
+			select @idEmpleado=idEmpleado from FISICA where idCompra=@idCompra
+			update VENDEDOR
+			set pago=pago - ((select total from COMPRA where idCompra=@idCompra ) * 0.15)
+			where idEmpleado=(select idEmpleado from FISICA where idCompra=@idCompra)
+		end
+		else
+		begin
+			declare @idComp numeric (10)
+			select @idComp = @idCompra
+			update COMPRA
+			set tipo='L'
+			where idCompra = @idCompra
+			exec cancelaVenta @idCompra=@idComp
+		end
 	end
 	else
 	begin
-		update LINEA
-		set cancelacion = 0.2 * (select total from COMPRA where idCompra = @idCompra)
-		where idCompra=@idCompra
+		if exists (select * from LINEA where idCompra=@idCompra)
+		begin
+			update LINEA
+			set cancelacion = 0.2 * (select total from COMPRA where idCompra = @idCompra)
+			where idCompra=@idCompra
+		end
+		else
+		begin
+			declare @idComp02 numeric (10)
+			select @idComp02 = @idCompra
+			update COMPRA
+			set tipo='F'
+			where idCompra = @idCompra
+			exec cancelaVenta @idCompra=@idComp02
+		end
 	end
 end

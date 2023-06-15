@@ -49,11 +49,9 @@ as
 	
 	
 	select @folio=folioRecibo from inserted
-	select @folio
 	select @fecha=fecha from inserted
-	select @fecha
 	select @id_consulta=id_consulta from inserted
-	select @id_consulta
+
 
 	select @total = sum(T.cantidad*M.costo) from Medicamento M inner join TRATAMIENTO T on T.idMedicamento=M.idMedicamento where @id_consulta=T.id_consulta
 	select @total= @total+ 150
@@ -123,6 +121,8 @@ as
 		where idCompra=@idCompra
 	end
 
+	go
+
 
 create or alter trigger tr_cancelacion
 on COMPRA
@@ -133,14 +133,16 @@ begin
 	declare @status char(2)
 	select @idCompraa=idCompra from inserted
 	select @status= status from inserted
-
+	select @idCompraa
+	select @status
 	if(@status='C')
 	begin
+		select 'Se cancela la venta '
 		exec cancelaVenta @idCompra=@idCompraa
 	end
 end
 
-
+go
 
 create or alter trigger tr_comision
 on FISICA
