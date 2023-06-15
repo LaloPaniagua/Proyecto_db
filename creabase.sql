@@ -17,9 +17,10 @@ CREATE TABLE ADMINISTRATIVO(
     genero             char(1)           NOT NULL,
     telefono           numeric(10, 0)    NOT NULL,
     correo             varchar(30)       NOT NULL,
-    NoTarjeta          numeric(19, 0)    NOT NULL,
-    VigenciaTarjeta    varchar(5)        NOT NULL,
-    CONSTRAINT idAdministrativo PRIMARY KEY NONCLUSTERED (idEmpleado)
+    noTarjeta          numeric(19, 0)    NOT NULL,
+    vigenciaTarjeta    varchar(5)        NOT NULL,
+    CONSTRAINT idAdministrativo PRIMARY KEY NONCLUSTERED (idEmpleado),
+    CONSTRAINT generoAdmin CHECK (genero in ('M','F'))--Masculino Femenino
 )
 go
 
@@ -29,7 +30,9 @@ go
  */
 
 CREATE TABLE BRAZALETE(
-    id_brazalete          numeric(10, 0)    NOT NULL,
+    id_brazalete          int IDENTITY (1,1)    NOT NULL,
+    fechaIngreso	date		NOT NULL,
+    fechaIngreso	date		NULL,
     EstatusComida         varchar(25)       NOT NULL,
     EstatusMedicamento    varchar(25)       NOT NULL,
     CuidadosEspeciales    varchar(25)       NOT NULL,
@@ -42,10 +45,17 @@ go
  * TABLE: COMPRA 
  */
 
+/*
+PAgado
+Pendiente
+Cancelada
+*/
 CREATE TABLE COMPRA(
     idCompra     numeric(10, 0)    NOT NULL,
+    fechaCompra	  date	           NOT NULL,
+    status         char(2)           NOT NULL constraint Regional check(status in ('PA','P','C')),
     tipo         char(1)           NOT NULL constraint tipo_compra check (tipo='L' or tipo='F'),
-    total        money             NOT NULL,
+    total        money             NOT NULL default 0,
     idCliente    numeric(10, 0)    NOT NULL,
     CONSTRAINT idCompra PRIMARY KEY NONCLUSTERED (idCompra)
 )
@@ -61,7 +71,7 @@ CREATE TABLE COMPRA_PRODUCTO(
     idCompra      numeric(10, 0)    NOT NULL,
     idProducto    numeric(10, 0)    NOT NULL,
     cantidad      int               NOT NULL,
-    subtotal      money             NOT NULL,
+    subtotal      money             NOT NULL default 0,
     CONSTRAINT idCompraProducto PRIMARY KEY NONCLUSTERED (idCompra, idProducto)
 )
 go
@@ -90,10 +100,10 @@ go
 
 CREATE TABLE CUIDADOR(
     idEmpleado    numeric(10, 0)    NOT NULL,
-    edad          numeric(3, 0)     NOT NULL,
+    edad          int     NOT NULL,
     usuario       varchar(30)       NOT NULL,
     contraseña    varchar(20)       NOT NULL,
-    especie       char(1)           NOT NULL constraint especie check(especie='P' or especie='G'),
+    especie       char(1)           NOT NULL constraint especieC check(especie='P' or especie='G'),
     CONSTRAINT idCuidador PRIMARY KEY NONCLUSTERED (idEmpleado)
 )
 go
@@ -102,10 +112,16 @@ go
 /* 
  * TABLE: EMPLEADO 
  */
-
+/*
+Tipos de empleado:
+-ADMinistrativo
+-CUIdador
+-VETerinario
+-VENdedor
+*/
 CREATE TABLE EMPLEADO(
     idEmpleado      numeric(10, 0)    NOT NULL,
-    tipoEmpleado    char(1)           NULL,
+    tipoEmpleado    char(3)           NULL,
     CURP            varchar(18)       NOT NULL,
     aMaterno        varchar(20)       NOT NULL,
     aPaterno        varchar(20)       NOT NULL,
@@ -158,9 +174,7 @@ go
 
 CREATE TABLE LINEA(
     idCompra       numeric(10, 0)    NOT NULL,
-    status         char(2)           NOT NULL constraint Regional check(status in ('PA','P','C')),
     cancelacion    numeric(10, 0)    NOT NULL,
-    monto          numeric(10, 0)    NOT NULL,
     CONSTRAINT PK6 PRIMARY KEY NONCLUSTERED (idCompra)
 )
 go
@@ -173,13 +187,13 @@ go
 
 CREATE TABLE MASCOTA(
     id_mascota               numeric(10, 0)    NOT NULL,
-    sexo                     char(1)           NOT NULL constraint sexo check (sexo='M' or sexo='H'),
+    sexo                     char(1)           NOT NULL constraint sexoMascota check (sexo='M' or sexo='H'),--Macho Hembra
     nombre                   varchar(10)       NOT NULL,
-    especie                  char(1)           NOT NULL constraint especie check(especie='P' or especie='G'),
+    especie                  char(1)           NOT NULL constraint especieMascota check(especie='P' or especie='G'),
     edad                     tinyint           NOT NULL,
     rasgosCaracteristicos    varchar(30)       NOT NULL,
     raza                     varchar(20)       NOT NULL,
-    id_brazalete             numeric(10, 0)    NOT NULL,
+    id_brazalete             int    NOT NULL,
     idCliente                numeric(10, 0)    NOT NULL,
     idVeterinario            numeric(10, 0)    NOT NULL,
     idCuidador               numeric(10, 0)    NOT NULL,
@@ -194,6 +208,7 @@ go
 
 CREATE TABLE Medicamento(
     idMedicamento        numeric(10, 0)    NOT NULL,
+    stock		 int		   NOT NULL default 0,
     costo                money             NOT NULL,
     nombreMedicamento    varchar(30)       NOT NULL,
     CONSTRAINT PK25 PRIMARY KEY NONCLUSTERED (idMedicamento)
@@ -209,8 +224,8 @@ CREATE TABLE MEDICION(
     id_medicion      numeric(10, 0)    NOT NULL,
     ritmoCardiaco    numeric(3, 0)     NOT NULL,
     fechaHora        datetime          NOT NULL,
-    nivelOxigeno     numeric(3, 0)     NOT NULL,
-    temperatura      numeric(3, 0)     NOT NULL,
+    nivelOxigeno     numeric(2, 0)     NOT NULL,
+    temperatura      numeric(2, 0)     NOT NULL,
     id_brazalete     numeric(10, 0)    NOT NULL,
     CONSTRAINT PK1 PRIMARY KEY NONCLUSTERED (id_medicion)
 )
@@ -225,7 +240,7 @@ CREATE TABLE OFERTA(
     descripcion    varchar(30)       NOT NULL,
     fechaInicio    datetime          NOT NULL,
     fechaFin       datetime          NOT NULL,
-    tipoOferta     char(1)           NOT NULL constraint tipo check (tipoOferta='N' or tipoOferta='L'),
+    tipoOferta     char(1)           NOT NULL constraint tipo check (tipoOferta='N' or tipoOferta='L'),--Normal o Limitada
     idProducto     numeric(10, 0)    NOT NULL,
     CONSTRAINT PK9 PRIMARY KEY NONCLUSTERED (idOferta),
 	constraint vigente check (fechaFin-fechaInicio<=40)
@@ -241,11 +256,13 @@ go
 
 CREATE TABLE PRODUCTO(
     idProducto     numeric(10, 0)     NOT NULL,
+    idGuarderia,   numeric(10,0)      NOT NULL,
     precio         money              NOT NULL,
     descripcion    varchar(25)        NOT NULL,
     descuento      int    NOT NULL default 0,
     CONSTRAINT PK8 PRIMARY KEY NONCLUSTERED (idProducto),
-	CONSTRAINT ckdescuento check (descuento>=0 and descuento<100)
+    CONSTRAINT ckdescuento check (descuento>=0 and descuento<100),
+    CONSTRAINT pkguarderia FOREIGN KEY (idguarderia) REFERENCES GUARDERIA(idguarderia)
 )
 go
 
@@ -260,7 +277,7 @@ CREATE TABLE RECIBO_VET(
     folioRecibo    numeric(10, 0)    NOT NULL,
     fecha          datetime          NOT NULL,
     id_consulta    numeric(10, 0)    NOT NULL,
-	totalConsulta  money			NOT NULL default 150,
+    totalConsulta  money	     NOT NULL default 150,
     CONSTRAINT PK11 PRIMARY KEY NONCLUSTERED (folioRecibo)
 )
 go
@@ -295,7 +312,7 @@ CREATE TABLE USUARIO(
     CURP          varchar(18)       NOT NULL,
     contrasena    varchar(16)       NOT NULL,
     noTarjeta     numeric(19, 0)    NOT NULL,
-    genero        char(1)           NOT NULL constraint genero check (genero='M' or genero='F'),
+    genero        char(1)           NOT NULL constraint genero check (genero='M' or genero='F'),--Masculino Femenino
     telefono      numeric(10, 0)    NOT NULL,
     correo        varchar(30)       NOT NULL,
     nomUsuario    varchar(20)       NOT NULL,
@@ -314,7 +331,7 @@ go
 
 CREATE TABLE VENDEDOR(
     idEmpleado    numeric(10, 0)    NOT NULL,
-    pago          money             NOT NULL,
+    pago          money             NOT NULL default 2500,
     CONSTRAINT PK16 PRIMARY KEY NONCLUSTERED (idEmpleado)
 )
 go
